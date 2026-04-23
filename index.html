@@ -528,7 +528,7 @@
         ];
 
         const map = echarts.init(document.getElementById("regMap"));
-        const geoRes = await fetch("https://geo.datav.aliyun.com/areas_v3/bound/100000_full.json");
+        const geoRes = await fetch("china.json");
         const geo = await geoRes.json();
         echarts.registerMap("china", geo);
         map.setOption({
