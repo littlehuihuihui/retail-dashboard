@@ -444,7 +444,7 @@
           try {
             await initRegion();
           } catch {
-            document.getElementById("regMap").innerHTML = '<p style="color:#94a3b8">地图加载失败，请检查网络。</p>';
+            document.getElementById("regMap").innerHTML = '<p style="color:#94a3b8">地图加载失败：请确认与页面同目录存在本地文件 china.json（或通过 http 服务打开页面）。</p>';
           }
         }
         if (tabId === "category") initCategory();
@@ -528,7 +528,7 @@
         ];
 
         const map = echarts.init(document.getElementById("regMap"));
-        const geoRes = await fetch("china.json");
+        const geoRes = await fetch(new URL("./china.json", document.baseURI));
         const geo = await geoRes.json();
         echarts.registerMap("china", geo);
         map.setOption({
