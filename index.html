@@ -1,883 +1,650 @@
-﻿<!doctype html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>零售行业全链路经营仪表板</title>
-    <style>
-      :root {
-        --bg: #0f172a;
-        --panel: rgba(30, 41, 59, 0.58);
-        --panel-2: rgba(15, 23, 42, 0.68);
-        --line: rgba(148, 163, 184, 0.22);
-        --text: #e2e8f0;
-        --muted: #94a3b8;
-        --blue: #38bdf8;
-        --green: #34d399;
-        --violet: #818cf8;
-        --orange: #fb923c;
-        --red: #fb7185;
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>零售行业全链路经营分析 · 知识框架</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --bg-elevated: rgba(30, 41, 59, 0.65);
+      --border: rgba(148, 163, 184, 0.12);
+      --text: #f1f5f9;
+      --text-muted: #94a3b8;
+      --accent: #38bdf8;
+      --accent-soft: rgba(56, 189, 248, 0.15);
+      --card-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
+      --radius: 14px;
+      --font: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 50% at 20% -10%, rgba(56, 189, 248, 0.18), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, rgba(99, 102, 241, 0.12), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .shell {
+      position: relative;
+      z-index: 1;
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 1.25rem 1rem 2.5rem;
+    }
+
+    .header {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .header h1 {
+      margin: 0;
+      font-size: clamp(1.15rem, 4vw, 1.65rem);
+      font-weight: 600;
+      letter-spacing: -0.02em;
+    }
+
+    .header p {
+      margin: 0.35rem 0 0;
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      max-width: 36rem;
+    }
+
+    .btn-export {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.6rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      font-size: 0.875rem;
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      transition: background 0.2s, border-color 0.2s, transform 0.15s;
+      white-space: nowrap;
+    }
+
+    .btn-export:hover {
+      background: rgba(56, 189, 248, 0.25);
+      border-color: rgba(56, 189, 248, 0.35);
+    }
+
+    .btn-export:active {
+      transform: scale(0.98);
+    }
+
+    .tabs {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.35rem;
+      padding: 0.35rem;
+      border-radius: var(--radius);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--card-shadow);
+      margin-bottom: 1.25rem;
+    }
+
+    .tab {
+      flex: 1 1 auto;
+      min-width: min(100%, 140px);
+      padding: 0.65rem 0.85rem;
+      border: none;
+      border-radius: 10px;
+      background: transparent;
+      color: var(--text-muted);
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: color 0.2s, background 0.2s;
+    }
+
+    .tab:hover {
+      color: var(--text);
+    }
+
+    .tab[aria-selected="true"] {
+      background: rgba(15, 23, 42, 0.85);
+      color: var(--text);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    }
+
+    .panel {
+      display: none;
+    }
+
+    .panel[aria-hidden="false"] {
+      display: block;
+      animation: fadeIn 0.25s ease;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr));
+      gap: 1rem;
+    }
+
+    .indicator-card {
+      padding: 1.1rem 1.15rem;
+      border-radius: var(--radius);
+      background: var(--bg-elevated);
+      border: 1px solid var(--border);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--card-shadow);
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .indicator-card:hover {
+      border-color: rgba(56, 189, 248, 0.2);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .indicator-card .name {
+      font-size: 1rem;
+      font-weight: 600;
+      margin: 0 0 0.5rem;
+      color: var(--text);
+    }
+
+    .indicator-card .formula {
+      font-size: 0.75rem;
+      font-family: ui-monospace, "Cascadia Code", monospace;
+      color: var(--accent);
+      margin: 0 0 0.5rem;
+      word-break: break-all;
+    }
+
+    .indicator-card .def {
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      margin: 0;
+    }
+
+    .table-wrap {
+      margin-top: 1.25rem;
+      border-radius: var(--radius);
+      overflow: hidden;
+      border: 1px solid var(--border);
+      background: var(--bg-elevated);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      box-shadow: var(--card-shadow);
+    }
+
+    .table-wrap h3 {
+      margin: 0;
+      padding: 0.85rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+    }
+
+    th, td {
+      padding: 0.65rem 1rem;
+      text-align: left;
+      border-bottom: 1px solid var(--border);
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 500;
+      background: rgba(15, 23, 42, 0.5);
+    }
+
+    td {
+      color: var(--text);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .numeric {
+      text-align: right;
+      font-variant-numeric: tabular-nums;
+    }
+
+    .china-map-block {
+      margin-top: 1.25rem;
+    }
+
+    .china-map-block h3 {
+      margin: 0;
+      padding: 0.85rem 1rem;
+      font-size: 0.9rem;
+      font-weight: 600;
+      border-bottom: 1px solid var(--border);
+      color: var(--text);
+    }
+
+    #kbChinaMap {
+      width: 100%;
+      height: min(52vw, 320px);
+      min-height: 240px;
+    }
+
+    .map-footnote {
+      margin: 0;
+      padding: 0.65rem 1rem;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      border-top: 1px solid var(--border);
+    }
+
+    .map-error {
+      margin: 0;
+      padding: 1.25rem 1rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      text-align: center;
+    }
+
+    @media (max-width: 640px) {
+      .header {
+        flex-direction: column;
       }
 
-      * { box-sizing: border-box; }
-
-      body {
-        margin: 0;
-        color: var(--text);
-        font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
-        background:
-          radial-gradient(circle at 8% 8%, rgba(56, 189, 248, 0.16) 0, transparent 34%),
-          radial-gradient(circle at 85% 0, rgba(99, 102, 241, 0.2) 0, transparent 28%),
-          var(--bg);
-      }
-
-      .container { max-width: 1380px; margin: 0 auto; padding: 18px 14px 24px; }
-      .glass {
-        background: linear-gradient(138deg, var(--panel), var(--panel-2));
-        border: 1px solid var(--line);
-        border-radius: 14px;
-        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.26);
-        backdrop-filter: blur(10px);
-      }
-
-      .topbar {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 12px;
-        padding: 14px 16px;
-        margin-bottom: 12px;
-      }
-      .title { margin: 0; font-size: clamp(20px, 2.7vw, 30px); }
-      .subtitle { margin: 5px 0 0; font-size: 13px; color: var(--muted); }
-      .actions { display: flex; gap: 8px; flex-wrap: wrap; }
-      .btn {
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 8px 12px;
-        color: #e2e8f0;
-        background: rgba(30, 64, 175, 0.26);
-        cursor: pointer;
-      }
-
-      .tabs { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px; position: sticky; top: 0; z-index: 5; }
-      .tab-btn {
-        border: 1px solid var(--line);
-        border-radius: 10px;
-        padding: 9px 14px;
-        color: #dbeafe;
-        background: rgba(51, 65, 85, 0.36);
-        cursor: pointer;
-      }
-      .tab-btn.active {
-        background: linear-gradient(120deg, rgba(56, 189, 248, 0.32), rgba(99, 102, 241, 0.24));
-      }
-      .tab-pane { display: none; margin-bottom: 14px; }
-      .tab-pane.active { display: block; }
-
-      .kpi-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-        gap: 10px;
-        margin-bottom: 10px;
-      }
-      .kpi-card { padding: 12px; position: relative; }
-      .kpi-name { font-size: 12px; color: var(--muted); }
-      .kpi-value { margin-top: 4px; font-size: 24px; font-weight: 600; }
-      .kpi-trend { font-size: 12px; }
-      .up { color: var(--green); }
-      .down { color: var(--red); }
-      .kpi-tip {
-        margin-left: 6px;
-        display: inline-flex;
-        align-items: center;
+      .btn-export {
+        width: 100%;
         justify-content: center;
-        width: 14px;
-        height: 14px;
-        border-radius: 50%;
-        border: 1px solid rgba(148,163,184,.5);
-        color: #cbd5e1;
-        font-size: 10px;
-        cursor: help;
-        position: relative;
       }
-      .kpi-tip::after {
-        content: attr(data-tip);
-        position: absolute;
-        left: 50%;
-        transform: translateX(-50%);
-        bottom: 22px;
-        width: 240px;
-        max-width: 78vw;
-        padding: 8px 10px;
-        border-radius: 8px;
-        border: 1px solid var(--line);
-        background: rgba(2, 6, 23, .95);
-        color: #dbeafe;
-        font-size: 12px;
-        line-height: 1.4;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity .15s ease;
-        white-space: normal;
-        z-index: 9;
-      }
-      .kpi-tip:hover::after { opacity: 1; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <header class="header">
+      <div>
+        <h1>零售行业全链路经营分析 · 知识框架</h1>
+        <p>门店、商品、会员与渠道指标口径说明；卡片含结构化 data 属性，可一键导出为 AI 知识库 JSON。门店 Tab 下图表从本地 china.json 读取省级地图。</p>
+      </div>
+      <button type="button" class="btn-export" id="btnExport" title="扫描页面指标并下载 JSON">
+        📦 导出AI知识库(JSON)
+      </button>
+    </header>
 
-      .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 10px; }
-      .col-12 { grid-column: span 12; }
-      .col-8 { grid-column: span 8; }
-      .col-6 { grid-column: span 6; }
-      .col-4 { grid-column: span 4; }
+    <div class="tabs" role="tablist" aria-label="知识模块">
+      <button type="button" class="tab" role="tab" id="tab1" aria-selected="true" aria-controls="panel1">门店运营指标</button>
+      <button type="button" class="tab" role="tab" id="tab2" aria-selected="false" aria-controls="panel2">商品管理指标</button>
+      <button type="button" class="tab" role="tab" id="tab3" aria-selected="false" aria-controls="panel3">用户与会员指标</button>
+      <button type="button" class="tab" role="tab" id="tab4" aria-selected="false" aria-controls="panel4">促销与渠道指标</button>
+    </div>
 
-      .card { min-height: 280px; padding: 12px; }
-      .card h3 { margin: 0 0 10px; font-size: 14px; color: #c7d8f7; }
-      .chart { width: 100%; height: 230px; }
-      .chart.tall { height: 320px; }
+    <!-- Tab1 -->
+    <section class="panel" id="panel1" role="tabpanel" aria-labelledby="tab1" aria-hidden="false">
+      <div class="grid">
+        <article class="indicator-card" data-name="销售额" data-module="门店运营" data-type="indicator" data-formula="Σ(单笔成交金额)" data-definition="统计周期内门店实际成交的销售收入总额（可按含税/不含税口径约定）。" data-business-scene="衡量门店整体经营规模与收入达成，作为坪效、人效等指标的分母或关联分析基础。">
+          <h2 class="name">销售额</h2>
+          <p class="formula">Σ(单笔成交金额)</p>
+          <p class="def">周期内成交销售收入总额，支撑规模与达成分析。</p>
+        </article>
+        <article class="indicator-card" data-name="坪效" data-module="门店运营" data-type="indicator" data-formula="销售额 / 门店营业面积" data-definition="每平方米营业面积产出的销售额。" data-business-scene="评估门店单位面积产出效率，辅助选址、陈列面积与撤并店决策。">
+          <h2 class="name">坪效</h2>
+          <p class="formula">销售额 / 门店营业面积</p>
+          <p class="def">单位面积产出，衡量空间利用效率。</p>
+        </article>
+        <article class="indicator-card" data-name="人效" data-module="门店运营" data-type="indicator" data-formula="销售额 / 在岗人数（或工时）" data-definition="每名员工（或每工时）带来的销售额。" data-business-scene="评估排班与编制合理性，对比标杆店优化人力配置。">
+          <h2 class="name">人效</h2>
+          <p class="formula">销售额 / 在岗人数（或工时）</p>
+          <p class="def">人均产出，关联编制与排班效率。</p>
+        </article>
+        <article class="indicator-card" data-name="客流量" data-module="门店运营" data-type="indicator" data-formula="进店人次（计数器/视频/小票归因）" data-definition="统计周期内进入门店的顾客人次。" data-business-scene="诊断客流波动原因，与转化、客单价联动做漏斗分析。">
+          <h2 class="name">客流量</h2>
+          <p class="formula">进店人次</p>
+          <p class="def">进店规模，转化与客单的上游指标。</p>
+        </article>
+        <article class="indicator-card" data-name="客单价" data-module="门店运营" data-type="indicator" data-formula="销售额 / 成交笔数" data-definition="平均每笔订单的金额。" data-business-scene="衡量单笔购买力，与连带率、促销结构结合优化货盘与话术。">
+          <h2 class="name">客单价</h2>
+          <p class="formula">销售额 / 成交笔数</p>
+          <p class="def">单笔订单平均金额。</p>
+        </article>
+        <article class="indicator-card" data-name="连带率" data-module="门店运营" data-type="indicator" data-formula="销售件数 / 成交笔数（或件数/笔数−1，按口径约定）" data-definition="平均每笔订单购买的商品件数，反映搭配销售能力。" data-business-scene="评估陈列、导购与组合促销效果，提升单次成交金额。">
+          <h2 class="name">连带率</h2>
+          <p class="formula">销售件数 / 成交笔数</p>
+          <p class="def">笔均件数，反映搭配与导购能力。</p>
+        </article>
+        <article class="indicator-card" data-name="SSSG" data-module="门店运营" data-type="indicator" data-formula="(本期可比店销售额 − 同期可比店销售额) / 同期可比店销售额 × 100%" data-definition="Same Store Sales Growth，可比门店在相同口径下的销售额同比增长率。" data-business-scene="剔除新开闭店影响，衡量存量门店有机增长与健康度。">
+          <h2 class="name">SSSG</h2>
+          <p class="formula">(本期可比店销售额 − 同期) / 同期 × 100%</p>
+          <p class="def">同店销售额增长，反映存量店有机增长。</p>
+        </article>
+        <article class="indicator-card" data-name="可比门店数" data-module="门店运营" data-type="indicator" data-formula="满足「营业满 N 个月且未迁址」等规则的门店计数" data-definition="纳入同店同比/环比对比口径的门店数量。" data-business-scene="保证 SSSG 等指标可比性，监控样本量变化避免误读。">
+          <h2 class="name">可比门店数</h2>
+          <p class="formula">满足可比规则的门店计数</p>
+          <p class="def">同店分析样本量，需与 SSSG 联读。</p>
+        </article>
+      </div>
 
-      table { width: 100%; border-collapse: collapse; font-size: 13px; }
-      th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid rgba(148, 163, 184, 0.2); }
-      th { color: #bfdbfe; background: rgba(51, 65, 85, 0.38); }
-      .table-wrap { max-height: 262px; overflow: auto; }
+      <div class="table-wrap china-map-block">
+        <h3>区域热力示意（本地 china.json）</h3>
+        <div id="kbChinaMap" role="img" aria-label="中国省级地图"></div>
+        <p class="map-footnote" id="kbChinaMapMeta">正在加载 china.json…</p>
+      </div>
+    </section>
 
-      .model-lib-wrap { margin-top: 14px; }
-      .model-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        gap: 10px;
-        padding: 12px 14px;
-        cursor: pointer;
-      }
-      .model-header h2 { margin: 0; font-size: 18px; }
-      .model-body { padding: 0 12px 12px; display: block; }
-      .model-body.collapsed { display: none; }
-      .model-tabs {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-        margin: 8px 0 12px;
-      }
-      .model-tab-btn {
-        border: 1px solid var(--line);
-        border-radius: 9px;
-        padding: 7px 10px;
-        font-size: 13px;
-        color: #dbeafe;
-        background: rgba(51, 65, 85, 0.36);
-        cursor: pointer;
-      }
-      .model-tab-btn.active {
-        background: linear-gradient(120deg, rgba(56, 189, 248, 0.3), rgba(99, 102, 241, 0.22));
-      }
-      .model-pane { display: none; }
-      .model-pane.active { display: block; }
+    <!-- Tab2 -->
+    <section class="panel" id="panel2" role="tabpanel" aria-labelledby="tab2" aria-hidden="true" hidden>
+      <div class="grid">
+        <article class="indicator-card" data-name="SKU总数" data-module="商品管理" data-type="indicator" data-formula="在售 SKU 去重计数" data-definition="当前经营范围内有效在售的商品规格数量。" data-business-scene="控制商品宽度与深度，平衡陈列、库存与供应链复杂度。">
+          <h2 class="name">SKU总数</h2>
+          <p class="formula">在售 SKU 去重计数</p>
+          <p class="def">有效在售规格数，反映商品宽度。</p>
+        </article>
+        <article class="indicator-card" data-name="动销率" data-module="商品管理" data-type="indicator" data-formula="周期内有销售的 SKU 数 / SKU 总数 × 100%" data-definition="在一定周期内产生过销售的 SKU 占比。" data-business-scene="识别长尾与滞销结构，指导汰换、订货与促销资源投放。">
+          <h2 class="name">动销率</h2>
+          <p class="formula">有销 SKU 数 / SKU 总数 × 100%</p>
+          <p class="def">有销售记录的 SKU 占比。</p>
+        </article>
+        <article class="indicator-card" data-name="售罄率" data-module="商品管理" data-type="indicator" data-formula="已售数量 / (已售数量 + 期末可售库存) × 100%（或按订货量口径）" data-definition="商品在季末或周期末的销售消化比例。" data-business-scene="评估买货与定价策略，季末清仓与追单决策。">
+          <h2 class="name">售罄率</h2>
+          <p class="formula">已售 / (已售 + 期末库存) × 100%</p>
+          <p class="def">销售消化比例，常按季/波段统计。</p>
+        </article>
+        <article class="indicator-card" data-name="库存周转天数" data-module="商品管理" data-type="indicator" data-formula="平均库存成本 / 日均销售成本（或 365 / 年周转次数）" data-definition="库存从进入到售出所需的平均天数。" data-business-scene="衡量资金占用与供应链效率，天数越短通常效率越高（需结合缺货权衡）。">
+          <h2 class="name">库存周转天数</h2>
+          <p class="formula">平均库存 / 日均销售成本</p>
+          <p class="def">库存变现速度，关联资金占用。</p>
+        </article>
+        <article class="indicator-card" data-name="缺货率" data-module="商品管理" data-type="indicator" data-formula="缺货导致的销售损失或缺货 SKU 次数 / 需求次数 × 100%（按口径）" data-definition="因无货可售而未能满足需求的比例或机会损失。" data-business-scene="平衡库存与可得性，优化安全库存与补货频率。">
+          <h2 class="name">缺货率</h2>
+          <p class="formula">缺货机会 / 总需求机会 × 100%</p>
+          <p class="def">有货可得性，影响销售与体验。</p>
+        </article>
+        <article class="indicator-card" data-name="呆滞库存占比" data-module="商品管理" data-type="indicator" data-formula="呆滞库存金额 / 总库存金额 × 100%" data-definition="长期无动销或周转极慢的库存占总库存的比例。" data-business-scene="识别资金沉淀与减值风险，驱动清仓、退货或结构优化。">
+          <h2 class="name">呆滞库存占比</h2>
+          <p class="formula">呆滞库存金额 / 总库存金额 × 100%</p>
+          <p class="def">慢动/不动库存占比。</p>
+        </article>
+        <article class="indicator-card" data-name="新品贡献率" data-module="商品管理" data-type="indicator" data-formula="新品销售额 / 总销售额 × 100%" data-definition="上市在一定周期内的新品对整体销售的贡献比例。" data-business-scene="评估上新节奏与商品企划成效，指导资源倾斜。">
+          <h2 class="name">新品贡献率</h2>
+          <p class="formula">新品销售额 / 总销售额 × 100%</p>
+          <p class="def">新品对整体销售的拉动。</p>
+        </article>
+        <article class="indicator-card" data-name="促销占比" data-module="商品管理" data-type="indicator" data-formula="促销价成交销售额 / 总销售额 × 100%" data-definition="通过促销价格或活动产生的销售占总销售的比例。" data-business-scene="监控价格侵蚀与毛利压力，避免过度依赖折扣。">
+          <h2 class="name">促销占比</h2>
+          <p class="formula">促销成交销售额 / 总销售额 × 100%</p>
+          <p class="def">折扣带动的销售结构占比。</p>
+        </article>
+      </div>
+    </section>
 
-      @media (max-width: 960px) {
-        .col-8, .col-6, .col-4 { grid-column: span 12; }
-        .topbar { flex-direction: column; align-items: flex-start; }
-      }
-    </style>
-  </head>
-  <body>
-    <main class="container" id="dashboard">
-      <header class="topbar glass">
-        <div>
-          <h1 class="title">零售行业全链路经营仪表板</h1>
-          <p class="subtitle">参照国内某头部零售品牌业务模式设计（门店近400家，年销20亿+）</p>
+    <!-- Tab3 -->
+    <section class="panel" id="panel3" role="tabpanel" aria-labelledby="tab3" aria-hidden="true" hidden>
+      <div class="grid">
+        <article class="indicator-card" data-name="会员总数" data-module="用户与会员" data-type="indicator" data-formula="有效会员档案去重计数" data-definition="截至统计时点已注册且未作废的会员人数。" data-business-scene="衡量私域用户资产规模，与拉新、激活策略联动。">
+          <h2 class="name">会员总数</h2>
+          <p class="formula">有效会员去重计数</p>
+          <p class="def">注册会员规模存量。</p>
+        </article>
+        <article class="indicator-card" data-name="MAU" data-module="用户与会员" data-type="indicator" data-formula="周期内至少一次活跃（登录/消费/互动）的会员去重数" data-definition="Monthly Active Users，月活跃会员数。" data-business-scene="评估会员运营活跃度与触点有效性。">
+          <h2 class="name">MAU</h2>
+          <p class="formula">月内活跃会员去重数</p>
+          <p class="def">月活规模，反映运营粘性。</p>
+        </article>
+        <article class="indicator-card" data-name="会员消费占比" data-module="用户与会员" data-type="indicator" data-formula="会员成交金额 / 总成交金额 × 100%" data-definition="会员身份订单贡献的销售占比。" data-business-scene="判断会员体系对生意的渗透与依赖程度。">
+          <h2 class="name">会员消费占比</h2>
+          <p class="formula">会员销售额 / 总销售额 × 100%</p>
+          <p class="def">会员对整体销售的贡献比例。</p>
+        </article>
+        <article class="indicator-card" data-name="会员客单价" data-module="用户与会员" data-type="indicator" data-formula="会员销售额 / 会员订单笔数" data-definition="会员订单的平均成交金额。" data-business-scene="对比非会员客单，评估权益与等级体系是否提升购买力。">
+          <h2 class="name">会员客单价</h2>
+          <p class="formula">会员销售额 / 会员订单笔数</p>
+          <p class="def">会员单笔购买力。</p>
+        </article>
+        <article class="indicator-card" data-name="复购率" data-module="用户与会员" data-type="indicator" data-formula="周期内购买≥2次的客户数 / 有购客户数 × 100%" data-definition="在统计周期内发生多次购买的客户比例。" data-business-scene="衡量留存与忠诚度，指导复购激励与触达节奏。">
+          <h2 class="name">复购率</h2>
+          <p class="formula">≥2 次购买客户 / 有购客户 × 100%</p>
+          <p class="def">多次购买客户占比。</p>
+        </article>
+        <article class="indicator-card" data-name="新客首购转化率" data-module="用户与会员" data-type="indicator" data-formula="完成首单的新客数 / 新访客或新线索数 × 100%" data-definition="新接触用户在首次周期内完成购买的比例。" data-business-scene="评估拉新承接、首单权益与门店/电商转化链路。">
+          <h2 class="name">新客首购转化率</h2>
+          <p class="formula">首单新客 / 新访客(线索) × 100%</p>
+          <p class="def">新客从触达到首单的效率。</p>
+        </article>
+        <article class="indicator-card" data-name="流失率" data-module="用户与会员" data-type="indicator" data-formula="流失会员数 / 期初活跃会员数 × 100%（流失定义按沉默天数）" data-definition="在定义窗口内未再活跃或消费的会员流失比例。" data-business-scene="预警用户资产萎缩，触发召回与权益挽回。">
+          <h2 class="name">流失率</h2>
+          <p class="formula">流失会员 / 期初活跃会员 × 100%</p>
+          <p class="def">沉默/流失用户占比，口径需固定。</p>
+        </article>
+        <article class="indicator-card" data-name="RFM分层" data-module="用户与会员" data-type="indicator" data-formula="R(近度)+F(频次)+M(金额) 打分后分群（如高价值/沉睡等）" data-definition="基于最近购买时间、购买频次、消费金额的用户分群模型。" data-business-scene="差异化营销资源投放：唤醒沉睡、巩固高价值、培育潜力。">
+          <h2 class="name">RFM分层</h2>
+          <p class="formula">R/F/M 评分矩阵分群</p>
+          <p class="def">价值与行为综合分群。</p>
+        </article>
+      </div>
+    </section>
+
+    <!-- Tab4 -->
+    <section class="panel" id="panel4" role="tabpanel" aria-labelledby="tab4" aria-hidden="true" hidden>
+      <div class="grid">
+        <article class="indicator-card" data-name="促销ROI" data-module="促销与渠道" data-type="indicator" data-formula="(促销增量毛利 − 促销成本) / 促销成本 × 100%（或增量收入/成本，按口径）" data-definition="促销带来的增量收益相对投入成本的回报。" data-business-scene="评估满减、折扣、赠品等活动是否划算，优化活动组合。">
+          <h2 class="name">促销ROI</h2>
+          <p class="formula">(增量毛利 − 促销成本) / 促销成本</p>
+          <p class="def">促销投入产出，需统一增量口径。</p>
+        </article>
+        <article class="indicator-card" data-name="渠道销售占比" data-module="促销与渠道" data-type="indicator" data-formula="某渠道销售额 / 全渠道总销售额 × 100%" data-definition="各销售渠道在总销售中的结构占比。" data-business-scene="识别增长引擎与渠道依赖，指导预算与组织配置。">
+          <h2 class="name">渠道销售占比</h2>
+          <p class="formula">渠道销售额 / 全渠道销售额 × 100%</p>
+          <p class="def">渠道结构，辅助资源倾斜。</p>
+        </article>
+        <article class="indicator-card" data-name="CAC" data-module="促销与渠道" data-type="indicator" data-formula="获客相关总成本 / 期间新增付费客户数" data-definition="Customer Acquisition Cost，获取一名新付费客户的平均成本。" data-business-scene="衡量拉新效率，与 LTV 对比判断渠道可持续性与投放上限。">
+          <h2 class="name">CAC</h2>
+          <p class="formula">获客总成本 / 新增付费客户数</p>
+          <p class="def">单客获客成本，常与 LTV 联读。</p>
+        </article>
+        <article class="indicator-card" data-name="优惠券核销率" data-module="促销与渠道" data-type="indicator" data-formula="已使用券张数 / 发放券张数 × 100%" data-definition="发放优惠券中被实际核销使用的比例。" data-business-scene="评估券面额、门槛与触达策略，降低无效补贴。">
+          <h2 class="name">优惠券核销率</h2>
+          <p class="formula">核销张数 / 发放张数 × 100%</p>
+          <p class="def">券类促销的实际使用率。</p>
+        </article>
+        <article class="indicator-card" data-name="直播GMV" data-module="促销与渠道" data-type="indicator" data-formula="直播场次成交订单金额合计（含退款需按净额口径约定）" data-definition="直播渠道产生的成交总金额。" data-business-scene="衡量直播带货规模，与观看、转化、退货联分析。">
+          <h2 class="name">直播GMV</h2>
+          <p class="formula">Σ 直播成交订单金额</p>
+          <p class="def">直播渠道成交规模。</p>
+        </article>
+        <article class="indicator-card" data-name="社群转化率" data-module="促销与渠道" data-type="indicator" data-formula="社群内成交人数(或订单) / 社群触达人数 × 100%" data-definition="企业微信/微信群等私域中完成购买的用户占比。" data-business-scene="评估社群运营与内容种草到成交的闭环效率。">
+          <h2 class="name">社群转化率</h2>
+          <p class="formula">社群成交人数 / 触达人数 × 100%</p>
+          <p class="def">私域触达到成交的效率。</p>
+        </article>
+      </div>
+
+      <div class="table-wrap">
+        <h3>促销ROI · 示例数据</h3>
+        <div style="overflow-x: auto;">
+          <table>
+            <thead>
+              <tr>
+                <th>活动名称</th>
+                <th>促销成本(万元)</th>
+                <th>增量毛利(万元)</th>
+                <th class="numeric">ROI</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>618满减</td>
+                <td class="numeric">48</td>
+                <td class="numeric">120</td>
+                <td class="numeric">150%</td>
+              </tr>
+              <tr>
+                <td>会员日折扣</td>
+                <td class="numeric">22</td>
+                <td class="numeric">35</td>
+                <td class="numeric">59%</td>
+              </tr>
+              <tr>
+                <td>直播专享券</td>
+                <td class="numeric">15</td>
+                <td class="numeric">42</td>
+                <td class="numeric">180%</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
-        <div class="actions">
-          <button class="btn" id="exportPng">导出截图 PNG</button>
-          <button class="btn" id="exportPdf">导出 PDF</button>
-        </div>
-      </header>
+      </div>
+    </section>
+  </div>
 
-      <nav class="tabs">
-        <button class="tab-btn active" data-target="overview">经营概览</button>
-        <button class="tab-btn" data-target="region">区域与门店</button>
-        <button class="tab-btn" data-target="category">品类与商品</button>
-        <button class="tab-btn" data-target="user">用户与营销</button>
-        <button class="tab-btn" data-target="model">智能模型库</button>
-      </nav>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  <script>
+    (function () {
+      var tabs = document.querySelectorAll(".tab");
+      var panels = document.querySelectorAll(".panel");
+      var chinaMapChart = null;
 
-      <section class="tab-pane active" id="overview">
-        <div class="kpi-grid">
-          <article class="kpi-card glass"><div class="kpi-name">总销售额<span class="kpi-tip" data-tip="口径：SUM(销售金额)，全渠道汇总。含线上/线下实付金额，不含退款。">i</span></div><div class="kpi-value">8,620 万元</div><div class="kpi-trend up">同比 +12.6%</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">客单价<span class="kpi-tip" data-tip="口径：销售额 / 订单数。反映单次成交金额水平。">i</span></div><div class="kpi-value">186.5 元</div><div class="kpi-trend up">环比 +3.2%</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">客流量<span class="kpi-tip" data-tip="口径：统计周期内进店人数或访问人数。用于评估引流能力。">i</span></div><div class="kpi-value">46.2 万人</div><div class="kpi-trend up">环比 +5.8%</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">门店总数<span class="kpi-tip" data-tip="口径：COUNT(DISTINCT 在营门店ID)。仅统计正常营业门店。">i</span></div><div class="kpi-value">386 家</div><div class="kpi-trend up">月新增 +8家</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">坪效<span class="kpi-tip" data-tip="口径：销售额 / 门店面积。反映单位面积产出效率。">i</span></div><div class="kpi-value">2,860 元/㎡</div><div class="kpi-trend up">同比 +4.5%</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">连带率<span class="kpi-tip" data-tip="口径：销售件数 / 交易笔数。表示每单平均购买件数。">i</span></div><div class="kpi-value">2.8 件</div><div class="kpi-trend down">目标 3.0</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">会员消费占比<span class="kpi-tip" data-tip="口径：会员销售额 / 总销售额。衡量会员经营贡献。">i</span></div><div class="kpi-value">48.6%</div><div class="kpi-trend up">环比 +2.1pct</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">复购率<span class="kpi-tip" data-tip="口径：复购人数 / 总购买人数。反映用户粘性。">i</span></div><div class="kpi-value">56.8%</div><div class="kpi-trend up">同比 +3.4pct</div></article>
-        </div>
-        <div class="grid">
-          <article class="card glass col-8"><h3>近30天销售额 / 销量 / 同比趋势</h3><div id="ovTrend" class="chart tall"></div></article>
-          <article class="card glass col-4"><h3>年度目标达成率</h3><div id="ovGauge" class="chart tall"></div></article>
-        </div>
-      </section>
-
-      <section class="tab-pane" id="region">
-        <div class="kpi-grid">
-          <article class="kpi-card glass"><div class="kpi-name">同店销售增长(SSSG)<span class="kpi-tip" data-tip="口径：(可比门店当期销售额-可比门店去年同期销售额)/去年同期销售额。可比门店指开业满12个月。">i</span></div><div class="kpi-value">5.6%</div><div class="kpi-trend up">可比门店同比</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">可比门店数<span class="kpi-tip" data-tip="口径：统计周期内开业满12个月且持续营业的门店数。">i</span></div><div class="kpi-value">312 家</div><div class="kpi-trend up">开业满12个月</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">覆盖省份<span class="kpi-tip" data-tip="口径：存在至少1家在营门店的省份数量。">i</span></div><div class="kpi-value">24 个</div><div class="kpi-trend up">持续拓展</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">覆盖城市<span class="kpi-tip" data-tip="口径：存在至少1家在营门店的城市数量。">i</span></div><div class="kpi-value">86 座</div><div class="kpi-trend up">密度提升</div></article>
-        </div>
-        <div class="grid">
-          <article class="card glass col-8"><h3>中国地图热力（广东/江浙沪高亮）</h3><div id="regMap" class="chart tall"></div></article>
-          <article class="card glass col-4"><h3>城市Top10销售额</h3><div id="regTopCity" class="chart tall"></div></article>
-          <article class="card glass col-12">
-            <h3>门店排名（Top10 + 末10）</h3>
-            <div class="table-wrap">
-              <table id="storeTable">
-                <thead>
-                  <tr><th>门店</th><th>城市</th><th>销售额(万)</th><th>坪效(元/㎡)</th><th>客流量</th><th>连带率</th><th>分组</th></tr>
-                </thead>
-                <tbody></tbody>
-              </table>
-            </div>
-          </article>
-        </div>
-      </section>
-
-      <section class="tab-pane" id="category">
-        <div class="kpi-grid">
-          <article class="kpi-card glass"><div class="kpi-name">SKU总数<span class="kpi-tip" data-tip="SKU=库存量单位（Stock Keeping Unit），是最小可管理商品单元。口径：在售+在库SKU去重计数。">i</span></div><div class="kpi-value">3,286 个</div><div class="kpi-trend">-</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">动销率<span class="kpi-tip" data-tip="口径：有销量SKU数 / 在售SKU总数。衡量商品活跃度。">i</span></div><div class="kpi-value">78.2%</div><div class="kpi-trend down">目标 80%</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">售罄率<span class="kpi-tip" data-tip="口径：售出件数 / 可售件数。越高说明库存周转越充分。">i</span></div><div class="kpi-value">86.5%</div><div class="kpi-trend up">环比 +2.1pct</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">库存周转天数<span class="kpi-tip" data-tip="口径：平均库存 / 日均销量。天数越短，库存效率越高。">i</span></div><div class="kpi-value">28.6 天</div><div class="kpi-trend up">同比 -2.3天</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">促销占比<span class="kpi-tip" data-tip="口径：促销销售额 / 总销售额。用于评估价格驱动依赖度。">i</span></div><div class="kpi-value">22.5%</div><div class="kpi-trend up">目标 &lt;25%</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">新品贡献率<span class="kpi-tip" data-tip="口径：新品销售额 / 总销售额。新品一般定义为上新90天内。">i</span></div><div class="kpi-value">8.6%</div><div class="kpi-trend up">环比 +1.2pct</div></article>
-        </div>
-        <div class="grid">
-          <article class="card glass col-4"><h3>品类销售额占比</h3><div id="catPie" class="chart"></div></article>
-          <article class="card glass col-4"><h3>品类毛利率对比</h3><div id="catMargin" class="chart"></div></article>
-          <article class="card glass col-4"><h3>品类售罄率对比</h3><div id="catSellout" class="chart"></div></article>
-          <article class="card glass col-6"><h3>库存周转趋势（6个月）</h3><div id="catTurnover" class="chart"></div></article>
-          <article class="card glass col-6"><h3>动销率趋势（6个月）</h3><div id="catMoving" class="chart"></div></article>
-        </div>
-      </section>
-
-      <section class="tab-pane" id="user">
-        <div class="kpi-grid">
-          <article class="kpi-card glass"><div class="kpi-name">会员总数<span class="kpi-tip" data-tip="口径：累计注册并未注销会员人数。">i</span></div><div class="kpi-value">486.2 万人</div><div class="kpi-trend up">月新增 +18.6万</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">月活会员(MAU)<span class="kpi-tip" data-tip="口径：近30天至少产生1次有效行为（浏览/下单/支付）的会员数。">i</span></div><div class="kpi-value">218.6 万人</div><div class="kpi-trend up">环比 +6.8%</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">会员复购率<span class="kpi-tip" data-tip="口径：近30天复购会员数 / 近30天购买会员总数。">i</span></div><div class="kpi-value">56.8%</div><div class="kpi-trend up">同比 +3.4pct</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">会员客单价<span class="kpi-tip" data-tip="口径：会员销售额 / 会员订单数。用于对比非会员消费质量。">i</span></div><div class="kpi-value">226.5 元</div><div class="kpi-trend up">vs 非会员 158元</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">平均促销ROI<span class="kpi-tip" data-tip="口径：促销增量毛利 / 促销投入成本。ROI>1表示活动有效。">i</span></div><div class="kpi-value">3.6</div><div class="kpi-trend up">目标 &gt;3.0</div></article>
-          <article class="kpi-card glass"><div class="kpi-name">新客首购转化率<span class="kpi-tip" data-tip="口径：首购新客数 / 新增注册用户数。反映拉新质量。">i</span></div><div class="kpi-value">38.5%</div><div class="kpi-trend down">目标 40%</div></article>
-        </div>
-        <div class="grid">
-          <article class="card glass col-6"><h3>会员增长趋势（新增+累计）</h3><div id="usrGrowth" class="chart"></div></article>
-          <article class="card glass col-6"><h3>会员RFM分层</h3><div id="usrRfm" class="chart"></div></article>
-          <article class="card glass col-6"><h3>促销ROI对比</h3><div id="usrRoi" class="chart"></div></article>
-          <article class="card glass col-6"><h3>渠道获客成本（CAC）</h3><div id="usrCac" class="chart"></div></article>
-          <article class="card glass col-12"><h3>会员转化漏斗（注册→首购→复购→高价值）</h3><div id="usrFunnel" class="chart"></div></article>
-        </div>
-      </section>
-
-      <section class="tab-pane" id="model">
-        <section class="model-lib-wrap glass">
-        <div class="model-header" id="modelToggle">
-          <h2>智能分析模型库（点击折叠/展开）</h2>
-          <span id="modelArrow">▾</span>
-        </div>
-        <div class="model-body" id="modelBody">
-          <div class="model-tabs">
-            <button class="model-tab-btn active" data-model="rfm">RFM分层</button>
-            <button class="model-tab-btn" data-model="forecast">销量预测</button>
-            <button class="model-tab-btn" data-model="assoc">关联推荐</button>
-            <button class="model-tab-btn" data-model="roi">促销ROI</button>
-            <button class="model-tab-btn" data-model="churn">流失预警</button>
-            <button class="model-tab-btn" data-model="abc">ABC分类</button>
-            <button class="model-tab-btn" data-model="stock">库存预警</button>
-          </div>
-
-          <div class="model-pane active" id="model-rfm">
-            <div class="grid">
-              <article class="card glass col-4"><h3>RFM用户占比</h3><div id="mdlRfmPie" class="chart"></div></article>
-              <article class="card glass col-8"><h3>RFM消费贡献</h3><div id="mdlRfmBar" class="chart"></div></article>
-              <article class="card glass col-12">
-                <h3>RFM分层说明</h3>
-                <div class="table-wrap">
-                  <table>
-                    <thead><tr><th>分层</th><th>占比</th><th>消费贡献</th><th>运营动作</th></tr></thead>
-                    <tbody id="rfmDescTable"></tbody>
-                  </table>
-                </div>
-              </article>
-            </div>
-          </div>
-
-          <div class="model-pane" id="model-forecast">
-            <div class="grid">
-              <article class="card glass col-8"><h3>未来30天销量预测</h3><div id="mdlForecastLine" class="chart"></div></article>
-              <article class="card glass col-4"><h3>预测精度</h3><div class="kpi-grid"><article class="kpi-card glass"><div class="kpi-name">MAPE</div><div class="kpi-value">8.4%</div><div class="kpi-trend up">低于10%目标</div></article></div></article>
-            </div>
-          </div>
-
-          <div class="model-pane" id="model-assoc">
-            <div class="grid">
-              <article class="card glass col-12">
-                <h3>关联规则（前件/后件/支持度/置信度/提升度）</h3>
-                <div class="table-wrap">
-                  <table>
-                    <thead><tr><th>前件</th><th>后件</th><th>支持度</th><th>置信度</th><th>提升度</th></tr></thead>
-                    <tbody id="assocTable"></tbody>
-                  </table>
-                </div>
-              </article>
-            </div>
-          </div>
-
-          <div class="model-pane" id="model-roi">
-            <div class="grid">
-              <article class="card glass col-6"><h3>促销活动ROI</h3><div id="mdlRoiBar" class="chart"></div></article>
-              <article class="card glass col-6">
-                <h3>活动明细</h3>
-                <div class="table-wrap">
-                  <table>
-                    <thead><tr><th>活动</th><th>投入(万)</th><th>增量销售(万)</th><th>ROI</th></tr></thead>
-                    <tbody id="roiDetailTable"></tbody>
-                  </table>
-                </div>
-              </article>
-            </div>
-          </div>
-
-          <div class="model-pane" id="model-churn">
-            <div class="grid">
-              <article class="card glass col-12">
-                <div class="kpi-grid">
-                  <article class="kpi-card glass"><div class="kpi-name">高风险会员数</div><div class="kpi-value">12.6 万</div><div class="kpi-trend down">环比 +1.2万</div></article>
-                  <article class="kpi-card glass"><div class="kpi-name">流失挽回成功率</div><div class="kpi-value">31.4%</div><div class="kpi-trend up">环比 +3.8pct</div></article>
-                  <article class="kpi-card glass"><div class="kpi-name">预警准确率</div><div class="kpi-value">76.2%</div><div class="kpi-trend up">持续优化</div></article>
-                </div>
-              </article>
-              <article class="card glass col-12">
-                <h3>高风险用户列表</h3>
-                <div class="table-wrap">
-                  <table>
-                    <thead><tr><th>会员ID</th><th>城市</th><th>最近购买间隔(天)</th><th>月均消费(元)</th><th>流失概率</th><th>建议动作</th></tr></thead>
-                    <tbody id="churnRiskTable"></tbody>
-                  </table>
-                </div>
-              </article>
-            </div>
-          </div>
-
-          <div class="model-pane" id="model-abc">
-            <div class="grid">
-              <article class="card glass col-4"><h3>ABC占比</h3><div id="mdlAbcPie" class="chart"></div></article>
-              <article class="card glass col-8">
-                <h3>ABC分类明细</h3>
-                <div class="table-wrap">
-                  <table>
-                    <thead><tr><th>分类</th><th>SKU数</th><th>销售贡献</th><th>毛利贡献</th><th>策略</th></tr></thead>
-                    <tbody id="abcTable"></tbody>
-                  </table>
-                </div>
-              </article>
-            </div>
-          </div>
-
-          <div class="model-pane" id="model-stock">
-            <div class="grid">
-              <article class="card glass col-12">
-                <div class="kpi-grid">
-                  <article class="kpi-card glass"><div class="kpi-name">高风险滞销SKU</div><div class="kpi-value">186</div><div class="kpi-trend down">环比 +12</div></article>
-                  <article class="kpi-card glass"><div class="kpi-name">断货SKU</div><div class="kpi-value">74</div><div class="kpi-trend down">环比 +5</div></article>
-                  <article class="kpi-card glass"><div class="kpi-name">库存健康度</div><div class="kpi-value">83.2%</div><div class="kpi-trend up">环比 +1.1pct</div></article>
-                </div>
-              </article>
-              <article class="card glass col-6">
-                <h3>滞销品列表</h3>
-                <div class="table-wrap">
-                  <table>
-                    <thead><tr><th>SKU</th><th>库存</th><th>近7天销量</th><th>预警等级</th></tr></thead>
-                    <tbody id="slowStockTable"></tbody>
-                  </table>
-                </div>
-              </article>
-              <article class="card glass col-6">
-                <h3>断货品列表</h3>
-                <div class="table-wrap">
-                  <table>
-                    <thead><tr><th>SKU</th><th>近7天需求</th><th>在库</th><th>影响门店数</th></tr></thead>
-                    <tbody id="outStockTable"></tbody>
-                  </table>
-                </div>
-              </article>
-            </div>
-          </div>
-        </div>
-        </section>
-      </section>
-    </main>
-
-    <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js"></script>
-    <script>
-      const charts = [];
-      const axisColor = "#94a3b8";
-      const gridColor = "rgba(148,163,184,.18)";
-      const legendStyle = { textStyle: { color: "#dbeafe", fontSize: 12 } };
-
-      function axis(type, data, name) {
-        return {
-          type,
-          data,
-          name,
-          axisLabel: { color: axisColor },
-          axisLine: { lineStyle: { color: gridColor } },
-          splitLine: { lineStyle: { color: gridColor } }
-        };
-      }
-
-      const tabInited = {};
-      async function initTabIfNeeded(tabId) {
-        if (tabInited[tabId]) return;
-        if (tabId === "overview") initOverview();
-        if (tabId === "region") {
-          try {
-            await initRegion();
-          } catch {
-            document.getElementById("regMap").innerHTML = '<p style="color:#94a3b8">地图加载失败：请确认与页面同目录存在本地文件 china.json（或通过 http 服务打开页面）。</p>';
-          }
+      function activate(id) {
+        tabs.forEach(function (t) {
+          var on = t.id === id;
+          t.setAttribute("aria-selected", on ? "true" : "false");
+          t.tabIndex = on ? 0 : -1;
+        });
+        panels.forEach(function (p) {
+          var on = p.id === "panel" + id.replace("tab", "");
+          p.setAttribute("aria-hidden", on ? "false" : "true");
+          p.hidden = !on;
+        });
+        if (id === "tab1" && chinaMapChart) {
+          requestAnimationFrame(function () {
+            chinaMapChart.resize();
+          });
         }
-        if (tabId === "category") initCategory();
-        if (tabId === "user") initUser();
-        if (tabId === "model") initModelLibrary();
-        tabInited[tabId] = true;
       }
 
-      async function activateTab(tabId) {
-        const target = document.getElementById(tabId);
-        if (!target) return;
-        document.querySelectorAll(".tab-btn").forEach((x) => x.classList.toggle("active", x.dataset.target === tabId));
-        document.querySelectorAll(".tab-pane").forEach((x) => x.classList.toggle("active", x.id === tabId));
-        await initTabIfNeeded(tabId);
-        charts.forEach((c) => c.resize());
-      }
-
-      document.querySelectorAll(".tab-btn").forEach((btn) => {
-        btn.addEventListener("click", () => activateTab(btn.dataset.target));
-      });
-
-      const modelToggle = document.getElementById("modelToggle");
-      const modelBody = document.getElementById("modelBody");
-      const modelArrow = document.getElementById("modelArrow");
-      modelToggle.addEventListener("click", () => {
-        modelBody.classList.toggle("collapsed");
-        modelArrow.textContent = modelBody.classList.contains("collapsed") ? "▸" : "▾";
-        if (!modelBody.classList.contains("collapsed")) charts.forEach((c) => c.resize());
-      });
-
-      document.querySelectorAll(".model-tab-btn").forEach((btn) => {
-        btn.addEventListener("click", () => {
-          document.querySelectorAll(".model-tab-btn").forEach((x) => x.classList.remove("active"));
-          document.querySelectorAll(".model-pane").forEach((x) => x.classList.remove("active"));
-          btn.classList.add("active");
-          document.getElementById("model-" + btn.dataset.model).classList.add("active");
-          charts.forEach((c) => c.resize());
+      tabs.forEach(function (tab) {
+        tab.addEventListener("click", function () {
+          activate(tab.id);
         });
       });
 
-      function initOverview() {
-        const d = Array.from({ length: 30 }, (_, i) => "D" + (i + 1));
-        const sales = d.map((_, i) => 250 + i * 4 + Math.sin(i / 2.8) * 16);
-        const volume = d.map((_, i) => 6200 + i * 70 + Math.cos(i / 3.4) * 240);
-        const yoy = d.map((_, i) => 9 + Math.sin(i / 4) * 3 + (i % 6 === 0 ? 1.5 : 0));
-
-        const trend = echarts.init(document.getElementById("ovTrend"));
-        trend.setOption({
-          tooltip: { trigger: "axis" },
-          legend: legendStyle,
-          grid: { left: 40, right: 42, top: 34, bottom: 24 },
-          xAxis: axis("category", d),
-          yAxis: [axis("value", null, "销售额(万元)"), axis("value", null, "同比(%)")],
-          series: [
-            { name: "销售额", type: "line", smooth: true, symbol: "none", data: sales, lineStyle: { color: "#38bdf8", width: 3 } },
-            { name: "销量", type: "line", smooth: true, symbol: "none", data: volume, lineStyle: { color: "#34d399", width: 2 } },
-            { name: "同比", type: "bar", yAxisIndex: 1, data: yoy, barWidth: 8, itemStyle: { color: "rgba(129,140,248,.72)" } }
-          ]
-        });
-
-        const gauge = echarts.init(document.getElementById("ovGauge"));
-        gauge.setOption({
-          series: [{
-            type: "gauge",
-            min: 0, max: 100,
-            data: [{ value: 76.5, name: "目标达成" }],
-            progress: { show: true, width: 16, itemStyle: { color: "#38bdf8" } },
-            axisLine: { lineStyle: { width: 16, color: [[1, "rgba(148,163,184,.22)"]] } },
-            detail: { formatter: "{value}%", color: "#e2e8f0", fontSize: 28, offsetCenter: [0, "60%"] },
-            title: { color: "#cbd5e1", offsetCenter: [0, "92%"] }
-          }]
-        });
-        charts.push(trend, gauge);
+      async function initKbChinaMap() {
+        var el = document.getElementById("kbChinaMap");
+        var meta = document.getElementById("kbChinaMapMeta");
+        if (!el || typeof echarts === "undefined") {
+          if (meta) meta.textContent = "ECharts 未加载，无法渲染地图。";
+          return;
+        }
+        try {
+          var geoRes = await fetch(new URL("./china.json", document.baseURI));
+          if (!geoRes.ok) throw new Error("HTTP " + geoRes.status);
+          var geo = await geoRes.json();
+          var n = geo.features ? geo.features.length : 0;
+          echarts.registerMap("china", geo);
+          chinaMapChart = echarts.init(el);
+          var provinceData = [
+            { name: "广东省", value: 1.35 }, { name: "江苏省", value: 1.06 }, { name: "浙江省", value: 1.02 },
+            { name: "上海市", value: 0.82 }, { name: "北京市", value: 0.76 }, { name: "山东省", value: 0.7 },
+            { name: "福建省", value: 0.64 }, { name: "四川省", value: 0.58 }, { name: "湖北省", value: 0.54 },
+            { name: "湖南省", value: 0.5 }, { name: "安徽省", value: 0.45 }, { name: "重庆市", value: 0.4 }
+          ];
+          chinaMapChart.setOption({
+            tooltip: { trigger: "item", formatter: function (p) { return p.name + "<br/>示例指数: " + (p.value != null ? Number(p.value).toFixed(2) : "—"); } },
+            visualMap: {
+              min: 0, max: 1.5, calculable: true, text: ["高", "低"],
+              inRange: { color: ["#1e3a8a", "#38bdf8", "#fde68a"] },
+              textStyle: { color: "#dbeafe" }
+            },
+            series: [{
+              type: "map",
+              map: "china",
+              roam: true,
+              data: provinceData,
+              itemStyle: { areaColor: "#1f2937", borderColor: "#475569" },
+              emphasis: { itemStyle: { areaColor: "#334155" } }
+            }]
+          });
+          if (meta) meta.textContent = "地图数据：与页面同目录的本地 china.json（省级要素 " + n + " 个）。示例数值仅为演示热力，非真实经营数据。";
+        } catch (err) {
+          el.innerHTML = '<p class="map-error">无法读取本地 china.json。请将 china.json 与 index.html 放在同一目录，或使用本地 HTTP 服务打开页面（部分浏览器禁止 file:// 下 fetch 本地文件）。</p>';
+          if (meta) meta.textContent = "";
+        }
       }
 
-      async function initRegion() {
-        const provinceData = [
-          { name: "广东", value: 1.35 }, { name: "江苏", value: 1.06 }, { name: "浙江", value: 1.02 }, { name: "上海", value: 0.82 },
-          { name: "北京", value: 0.76 }, { name: "山东", value: 0.7 }, { name: "福建", value: 0.64 }, { name: "四川", value: 0.58 },
-          { name: "湖北", value: 0.54 }, { name: "湖南", value: 0.5 }, { name: "安徽", value: 0.45 }, { name: "重庆", value: 0.4 }
-        ];
+      initKbChinaMap();
 
-        const map = echarts.init(document.getElementById("regMap"));
-        const geoRes = await fetch(new URL("./china.json", document.baseURI));
-        const geo = await geoRes.json();
-        echarts.registerMap("china", geo);
-        map.setOption({
-          tooltip: { trigger: "item", formatter: (p) => `${p.name}<br/>销售额: ${Number(p.value || 0).toFixed(2)}亿元` },
-          visualMap: {
-            min: 0, max: 1.5, calculable: true, text: ["高", "低"],
-            inRange: { color: ["#1e3a8a", "#38bdf8", "#fde68a"] },
-            textStyle: { color: "#dbeafe" }
-          },
-          series: [{
-            type: "map",
-            map: "china",
-            roam: true,
-            data: provinceData,
-            itemStyle: { areaColor: "#1f2937", borderColor: "#475569" },
-            emphasis: { itemStyle: { areaColor: "#334155" } }
-          }]
-        });
-
-        const cityTop = [
-          ["上海", 860], ["广州", 820], ["杭州", 770], ["深圳", 750], ["南京", 698],
-          ["苏州", 676], ["北京", 652], ["武汉", 620], ["成都", 598], ["重庆", 576]
-        ];
-        const topChart = echarts.init(document.getElementById("regTopCity"));
-        topChart.setOption({
-          tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-          grid: { left: 54, right: 14, top: 10, bottom: 22 },
-          xAxis: axis("value"),
-          yAxis: axis("category", cityTop.map((x) => x[0]).reverse()),
-          series: [{ type: "bar", data: cityTop.map((x) => x[1]).reverse(), barWidth: 12, itemStyle: { color: "#38bdf8" } }]
-        });
-
-        const rows = [
-          ["上海徐汇店", "上海", 162, 4850, 19400, 3.1, "Top10"],
-          ["杭州滨江店", "杭州", 156, 4720, 18200, 3.0, "Top10"],
-          ["广州天河店", "广州", 150, 4680, 17600, 2.9, "Top10"],
-          ["深圳南山店", "深圳", 146, 4620, 17100, 2.9, "Top10"],
-          ["苏州园区店", "苏州", 140, 4520, 16400, 2.8, "Top10"],
-          ["石家庄桥西店", "石家庄", 52, 1980, 7300, 2.2, "末10"],
-          ["合肥北城店", "合肥", 50, 1900, 7100, 2.1, "末10"],
-          ["贵阳花果园店", "贵阳", 49, 1860, 6900, 2.1, "末10"],
-          ["南昌红谷滩店", "南昌", 48, 1820, 6800, 2.0, "末10"],
-          ["兰州城关店", "兰州", 46, 1760, 6500, 1.9, "末10"]
-        ];
-        document.querySelector("#storeTable tbody").innerHTML = rows
-          .map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td><td>${r[6]}</td></tr>`)
-          .join("");
-
-        charts.push(map, topChart);
-      }
-
-      function initCategory() {
-        const catData = [
-          { name: "A类主力品", share: 38.6, margin: 24.5, sellout: 89.2 },
-          { name: "B类增长品", share: 26.8, margin: 22.2, sellout: 84.6 },
-          { name: "C类高频品", share: 25.2, margin: 18.6, sellout: 86.8 },
-          { name: "D类新品", share: 9.4, margin: 29.8, sellout: 78.3 }
-        ];
-
-        const pie = echarts.init(document.getElementById("catPie"));
-        pie.setOption({
-          tooltip: { trigger: "item" },
-          legend: { bottom: 0, ...legendStyle },
-          series: [{ type: "pie", radius: ["34%", "64%"], data: catData.map((x) => ({ name: x.name, value: x.share })) }]
-        });
-
-        const margin = echarts.init(document.getElementById("catMargin"));
-        margin.setOption({
-          tooltip: { trigger: "axis" },
-          grid: { left: 40, right: 14, top: 20, bottom: 22 },
-          xAxis: axis("category", catData.map((x) => x.name)),
-          yAxis: axis("value", null, "毛利率%"),
-          series: [{ type: "bar", data: catData.map((x) => x.margin), barWidth: 22, itemStyle: { color: "#818cf8" } }]
-        });
-
-        const sellout = echarts.init(document.getElementById("catSellout"));
-        sellout.setOption({
-          tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-          grid: { left: 70, right: 14, top: 20, bottom: 22 },
-          xAxis: axis("value", null, "售罄率%"),
-          yAxis: axis("category", catData.map((x) => x.name).reverse()),
-          series: [{ type: "bar", data: catData.map((x) => x.sellout).reverse(), barWidth: 12, itemStyle: { color: "#34d399" } }]
-        });
-
-        const turnover = echarts.init(document.getElementById("catTurnover"));
-        turnover.setOption({
-          tooltip: { trigger: "axis" },
-          legend: legendStyle,
-          grid: { left: 40, right: 18, top: 30, bottom: 24 },
-          xAxis: axis("category", ["1月", "2月", "3月", "4月", "5月", "6月"]),
-          yAxis: axis("value", null, "天"),
-          series: [
-            { name: "周转天数", type: "line", smooth: true, data: [31.2, 30.5, 29.8, 29.2, 28.9, 28.6] },
-            { name: "目标线", type: "line", smooth: true, data: [28.5, 28.5, 28.5, 28.5, 28.5, 28.5], lineStyle: { type: "dashed", color: "#fb923c" } }
-          ]
-        });
-
-        const moving = echarts.init(document.getElementById("catMoving"));
-        moving.setOption({
-          tooltip: { trigger: "axis" },
-          grid: { left: 40, right: 14, top: 20, bottom: 24 },
-          xAxis: axis("category", ["1月", "2月", "3月", "4月", "5月", "6月"]),
-          yAxis: axis("value", null, "动销率%"),
-          series: [{ type: "line", smooth: true, data: [72.3, 73.8, 74.9, 76.1, 77.2, 78.2], lineStyle: { width: 3, color: "#38bdf8" } }]
-        });
-
-        charts.push(pie, margin, sellout, turnover, moving);
-      }
-
-      function initUser() {
-        const growth = echarts.init(document.getElementById("usrGrowth"));
-        growth.setOption({
-          tooltip: { trigger: "axis" },
-          legend: legendStyle,
-          grid: { left: 44, right: 22, top: 30, bottom: 24 },
-          xAxis: axis("category", ["1月", "2月", "3月", "4月", "5月", "6月"]),
-          yAxis: [axis("value", null, "新增会员(万)"), axis("value", null, "累计会员(万)")],
-          series: [
-            { name: "新增会员", type: "bar", data: [12.8, 14.1, 15.3, 16.2, 17.4, 18.6], barWidth: 12 },
-            { name: "累计会员", type: "line", yAxisIndex: 1, smooth: true, data: [401, 418, 434, 451, 468, 486.2], lineStyle: { color: "#34d399", width: 3 } }
-          ]
-        });
-
-        const rfm = echarts.init(document.getElementById("usrRfm"));
-        rfm.setOption({
-          tooltip: { trigger: "item" },
-          legend: { bottom: 0, ...legendStyle },
-          series: [{
-            type: "pie",
-            radius: ["34%", "64%"],
-            data: [
-              { name: "高价值", value: 12 },
-              { name: "潜力", value: 28 },
-              { name: "活跃", value: 35 },
-              { name: "休眠", value: 18 },
-              { name: "流失", value: 7 }
-            ]
-          }]
-        });
-
-        const roiData = [
-          ["会员日满减", 4.2],
-          ["新品体验官", 2.8],
-          ["直播间专属券", 4.6],
-          ["门店快闪活动", 3.1],
-          ["社群团长激励", 3.4]
-        ];
-        const roi = echarts.init(document.getElementById("usrRoi"));
-        roi.setOption({
-          tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-          grid: { left: 90, right: 16, top: 16, bottom: 20 },
-          xAxis: axis("value", null, "ROI"),
-          yAxis: axis("category", roiData.map((x) => x[0]).reverse()),
-          series: [{ type: "bar", data: roiData.map((x) => x[1]).reverse(), barWidth: 12, itemStyle: { color: "#34d399" } }]
-        });
-
-        const cacData = [
-          ["门店自然流量", 12],
-          ["小程序/App", 28],
-          ["短视频/社交", 45],
-          ["异业合作", 36]
-        ];
-        const cac = echarts.init(document.getElementById("usrCac"));
-        cac.setOption({
-          tooltip: { trigger: "axis" },
-          grid: { left: 40, right: 14, top: 20, bottom: 20 },
-          xAxis: axis("category", cacData.map((x) => x[0])),
-          yAxis: axis("value", null, "CAC(元)"),
-          series: [{ type: "bar", data: cacData.map((x) => x[1]), barWidth: 22, itemStyle: { color: "#818cf8" } }]
-        });
-
-        const funnel = echarts.init(document.getElementById("usrFunnel"));
-        funnel.setOption({
-          tooltip: { trigger: "item" },
-          series: [{
-            type: "funnel",
-            left: "14%",
-            width: "72%",
-            data: [
-              { name: "注册", value: 100 },
-              { name: "首购", value: 38.5 },
-              { name: "复购", value: 21.8 },
-              { name: "高价值", value: 8.2 }
-            ]
-          }]
-        });
-
-        charts.push(growth, rfm, roi, cac, funnel);
-      }
-
-      function initModelLibrary() {
-        const rfmPie = echarts.init(document.getElementById("mdlRfmPie"));
-        rfmPie.setOption({
-          tooltip: { trigger: "item" },
-          legend: { bottom: 0, ...legendStyle },
-          series: [{ type: "pie", radius: ["35%", "64%"], data: [
-            { name: "高价值", value: 12 }, { name: "潜力", value: 28 }, { name: "活跃", value: 35 }, { name: "休眠", value: 18 }, { name: "流失", value: 7 }
-          ] }]
-        });
-
-        const rfmBar = echarts.init(document.getElementById("mdlRfmBar"));
-        rfmBar.setOption({
-          tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-          grid: { left: 60, right: 14, top: 20, bottom: 20 },
-          xAxis: axis("value", null, "消费贡献%"),
-          yAxis: axis("category", ["高价值", "潜力", "活跃", "休眠", "流失"]),
-          series: [{ type: "bar", data: [41, 27, 20, 9, 3], barWidth: 14, itemStyle: { color: "#38bdf8" } }]
-        });
-
-        const rfmDesc = [
-          ["高价值", "12%", "41%", "重点维系，高端权益与专属服务"],
-          ["潜力", "28%", "27%", "提升复购频次，组合包推荐"],
-          ["活跃", "35%", "20%", "维持活跃，周期券触达"],
-          ["休眠", "18%", "9%", "激活召回，限时优惠"],
-          ["流失", "7%", "3%", "分层挽回，低成本召回"]
-        ];
-        document.getElementById("rfmDescTable").innerHTML = rfmDesc.map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
-
-        const forecast = echarts.init(document.getElementById("mdlForecastLine"));
-        const d = Array.from({ length: 30 }, (_, i) => "F" + (i + 1));
-        const mid = d.map((_, i) => 280 + i * 2.4 + Math.sin(i / 3.1) * 10);
-        forecast.setOption({
-          tooltip: { trigger: "axis" },
-          legend: legendStyle,
-          grid: { left: 42, right: 16, top: 24, bottom: 20 },
-          xAxis: axis("category", d),
-          yAxis: axis("value", null, "销量(万件)"),
-          series: [
-            { name: "预测中枢", type: "line", smooth: true, symbol: "none", data: mid },
-            { name: "上置信区间", type: "line", smooth: true, symbol: "none", data: mid.map((v) => (v * 1.08).toFixed(1)), lineStyle: { type: "dashed" } },
-            { name: "下置信区间", type: "line", smooth: true, symbol: "none", data: mid.map((v) => (v * 0.92).toFixed(1)), lineStyle: { type: "dashed" } }
-          ]
-        });
-
-        const level = echarts.init(document.getElementById("mdlStoreLevel"));
-        level.setOption({
-          tooltip: { trigger: "item" },
-          xAxis: axis("value", null, "门店数"),
-          yAxis: axis("category", ["S级", "A级", "B级", "C级"]),
-          grid: { left: 42, right: 14, top: 18, bottom: 20 },
-          series: [{ type: "bar", data: [42, 118, 162, 64], itemStyle: { color: (p) => ["#fde047", "#38bdf8", "#818cf8", "#fb7185"][p.dataIndex] } }]
-        });
-
-        const assocRows = [
-          ["矿泉水", "苏打饼干", "4.6%", "31.2%", "1.84"],
-          ["洗衣液", "柔顺剂", "3.8%", "42.5%", "2.10"],
-          ["牛奶", "麦片", "5.1%", "36.8%", "1.92"],
-          ["纸巾", "湿巾", "2.9%", "27.4%", "1.63"],
-          ["咖啡", "奶精", "2.1%", "34.9%", "2.24"]
-        ];
-        document.getElementById("assocTable").innerHTML = assocRows
-          .map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`)
-          .join("");
-
-        const roiData = [
-          ["会员日满减", 4.2],
-          ["新品体验官", 2.8],
-          ["直播间专属券", 4.6],
-          ["门店快闪活动", 3.1],
-          ["社群团长激励", 3.4]
-        ];
-        const mdlRoi = echarts.init(document.getElementById("mdlRoiBar"));
-        mdlRoi.setOption({
-          tooltip: { trigger: "axis", axisPointer: { type: "shadow" } },
-          grid: { left: 90, right: 16, top: 16, bottom: 20 },
-          xAxis: axis("value", null, "ROI"),
-          yAxis: axis("category", roiData.map((x) => x[0]).reverse()),
-          series: [{ type: "bar", data: roiData.map((x) => x[1]).reverse(), barWidth: 12, itemStyle: { color: "#34d399" } }]
-        });
-
-        document.getElementById("roiDetailTable").innerHTML = [
-          ["会员日满减", "120", "504", "4.2"],
-          ["新品体验官", "90", "252", "2.8"],
-          ["直播间专属券", "80", "368", "4.6"],
-          ["门店快闪活动", "65", "202", "3.1"],
-          ["社群团长激励", "72", "245", "3.4"]
-        ].map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
-
-        document.getElementById("churnRiskTable").innerHTML = [
-          ["U3920102", "上海", 27, 428, "86%", "发放会员日券并回访"],
-          ["U1820341", "广州", 24, 396, "79%", "推送高频复购品组合"],
-          ["U5102209", "杭州", 31, 502, "91%", "店长电话唤醒"],
-          ["U9922087", "深圳", 22, 368, "74%", "社群专属券二次触达"],
-          ["U4311092", "苏州", 29, 440, "88%", "流失防护任务优先级P1"]
-        ].map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td><td>${r[5]}</td></tr>`)
-          .join("");
-
-        const abcPie = echarts.init(document.getElementById("mdlAbcPie"));
-        abcPie.setOption({
-          tooltip: { trigger: "item" },
-          legend: { bottom: 0, ...legendStyle },
-          series: [{ type: "pie", radius: ["36%", "62%"], data: [{ name: "A类", value: 18 }, { name: "B类", value: 32 }, { name: "C类", value: 50 }] }]
-        });
-        document.getElementById("abcTable").innerHTML = [
-          ["A类", "592", "70%", "64%", "重点保供，严控缺货"],
-          ["B类", "1058", "22%", "26%", "优化陈列与促销"],
-          ["C类", "1636", "8%", "10%", "精简尾部，控库存"]
-        ].map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td><td>${r[4]}</td></tr>`)
-          .join("");
-
-        document.getElementById("slowStockTable").innerHTML = [
-          ["SKU-10234", 1280, 12, "高"],
-          ["SKU-20811", 940, 9, "高"],
-          ["SKU-16742", 760, 10, "中"],
-          ["SKU-30128", 630, 11, "中"],
-          ["SKU-41209", 560, 8, "高"]
-        ].map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
-        document.getElementById("outStockTable").innerHTML = [
-          ["SKU-55612", 1480, 0, 36],
-          ["SKU-60123", 1320, 0, 29],
-          ["SKU-77820", 1210, 0, 24],
-          ["SKU-44098", 980, 0, 18],
-          ["SKU-39110", 860, 0, 16]
-        ].map((r) => `<tr><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td><td>${r[3]}</td></tr>`).join("");
-
-        charts.push(rfmPie, rfmBar, forecast, level, mdlRoi, abcPie);
-      }
-
-      async function captureDashboard() {
-        return html2canvas(document.getElementById("dashboard"), {
-          scale: 2,
-          backgroundColor: "#0f172a",
-          useCORS: true
-        });
-      }
-
-      document.getElementById("exportPng").addEventListener("click", async () => {
-        const canvas = await captureDashboard();
-        const link = document.createElement("a");
-        link.href = canvas.toDataURL("image/png");
-        link.download = "零售行业全链路经营仪表板.png";
-        link.click();
+      window.addEventListener("resize", function () {
+        if (chinaMapChart) chinaMapChart.resize();
       });
 
-      document.getElementById("exportPdf").addEventListener("click", async () => {
-        const canvas = await captureDashboard();
-        const { jsPDF } = window.jspdf;
-        const pdf = new jsPDF("p", "mm", "a4");
-        const ratio = canvas.width / canvas.height;
-        let w = 200;
-        let h = w / ratio;
-        if (h > 287) { h = 287; w = h * ratio; }
-        pdf.addImage(canvas.toDataURL("image/png"), "PNG", 5, 5, w, h);
-        pdf.save("零售行业全链路经营仪表板.pdf");
-      });
+      document.getElementById("btnExport").addEventListener("click", function () {
+        var cards = document.querySelectorAll(".indicator-card[data-name]");
+        var indicators = [];
+        cards.forEach(function (el) {
+          indicators.push({
+            name: el.getAttribute("data-name") || "",
+            module: el.getAttribute("data-module") || "",
+            type: el.getAttribute("data-type") || "indicator",
+            formula: el.getAttribute("data-formula") || "",
+            definition: el.getAttribute("data-definition") || "",
+            business_scene: el.getAttribute("data-business-scene") || ""
+          });
+        });
 
-      activateTab("overview");
-      window.addEventListener("resize", () => charts.forEach((c) => c.resize()));
-    </script>
-  </body>
+        var payload = {
+          industry: "零售行业全链路经营分析",
+          version: "2.0",
+          export_time: new Date().toISOString(),
+          knowledge_base: {
+            indicators: indicators
+          }
+        };
+
+        var blob = new Blob([JSON.stringify(payload, null, 2)], {
+          type: "application/json;charset=utf-8"
+        });
+        var url = URL.createObjectURL(blob);
+        var a = document.createElement("a");
+        a.href = url;
+        a.download = "零售行业_知识库.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      });
+    })();
+  </script>
+</body>
 </html>
-
